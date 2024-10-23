@@ -1,4 +1,4 @@
-#BitTrickle - Assignment 1
+# BitTrickle - COMP3331 Assignment 1
 The peer-2-peer file sharing system no one asked for.
 Written by Ryan Wong z5417983 for COMP3331 Networks and Communications at UNSW
 
