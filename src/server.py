@@ -21,7 +21,7 @@ address = (host, port)
 credentials = {}
 with open(credentials_path, 'r') as file:
     for line in file:
-        (username, password) = line.split()
+        username, password = line.split()
         credentials[username] = password
         
 # need to store
@@ -35,11 +35,14 @@ with open(credentials_path, 'r') as file:
 # User class has attributes: is_active, [published_files], welcome_socket_port, timeout_time
 # "dummy": server_helper.User(12001, datetime.now() + timedelta(seconds=3))
 peers = {}
+for user in credentials.keys():
+    new_user = server_helper.User(0, datetime.now())
+    peers[user] = new_user
 
 # how to handle heartbeat
 # if packet received is a heartbeat command, check who sent, get current time
-# set isActive = true if not already
-# set timeoutTime = currentTime + 3 sec
+# set is_active = true if not already
+# set timeout_time = currentTime + 3 sec
 
 # main loop
 # 1. receive UDP packet - depending on what it wants (heartbeat/auth/sch/get) call that function
@@ -49,6 +52,8 @@ peers = {}
 serverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 serverSocket.bind(address)
 serverSocket.settimeout(0.5)
+
+print(f"Server listening on {port}...")
 
 # function to gracefully shut down server
 def server_shutdown(sig, frame):
@@ -61,24 +66,22 @@ while (True):
     
     # listen for packets
     try:
-        data, addr = serverSocket.recvfrom(1024)
+        data, client_address = serverSocket.recvfrom(1024)
+        data_line_array = data.decode().split('\n')
+        command, username = data_line_array[0].split()
         
-        # handle auth
-        # we are assuming for now, a simple message "username password"
-        array = data.decode().split()
-        if array[0] in credentials.keys() and credentials[array[0]] == array[1]:
-            serverSocket.sendto("login success".encode(), addr)
-            if array[0] not in peers.keys():
-                peers[array[0]] = server_helper.User(addr[1], datetime.now() + timedelta(seconds=3))
+        if command == "auth":
+            # dont care about username cuz we already have it
+            _, password, welcome_port = data_line_array[2].split()
+            if server_helper.auth(peers, credentials, username, password, welcome_port):
+                serverSocket.sendto(f"OK\n{datetime.now()}".encode(), client_address)
             else:
-                peers[array[0]].is_active = True
-                peers[array[0]].timeout_time = datetime.now() + timedelta(seconds=3)
-        else:
-            serverSocket.sendto("login FAIL".encode(), addr)
+                serverSocket.sendto(f"ERR\n{datetime.now()}\nAuth failed: incorrect credentials or user already active".encode(), client_address)
             
     except socket.timeout:
         pass
-        
+    
+    # Heartbeat handling
     # check active user's timeout_time
     for user in peers:
         if (peers[user].is_active):

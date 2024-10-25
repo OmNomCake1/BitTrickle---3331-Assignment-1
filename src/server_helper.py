@@ -1,12 +1,19 @@
 # helper functions and class for indexing server
 # Includes a data class, one instance for each user 
-
+from datetime import datetime, timedelta
 
 # Data class for each user. Has the following fields:
 # is_active, [published_files], welcome_socket_port, timeout_time
 class User:
+    """ 
+    Data class for each user. Has the following fields:
+    (bool) is_active, (string[]) [published_files], (string) welcome_socket_port, (datetime) timeout_time
+    
+    if is_active == false, welcome_socket_port, timeout_time is not valid (dont care)
+    """
+    
     def __init__(self, port, timeout_time):
-        self.is_active = True
+        self.is_active = False
         self.published_files = []
         self.welcome_socket_port = port
         self.timeout_time = timeout_time
@@ -17,3 +24,31 @@ class User:
         print(f"published_files: {self.published_files}")
         print(f"welcome_socket_port: {self.welcome_socket_port}")
         print(f"timeout_time: {self.timeout_time}")
+        
+
+def auth(peers, credentials, username, password, port):
+    """
+    returns boolean signifying sucess/failed authentication
+    need to also check - is user already active even if username/pass is correct
+    also changes values of is_active = True, timeout_time = now + 3sec and welcome_socket_port if user successfully logs in 
+
+    Args:
+        peers (dictionary): dictionary of User objects
+        credentials (dictionary): dictionary of correct username: passwords
+        username (string): client sent username
+        password (string): client sent password
+        port (int): TCP welcome port of the client
+    """
+    if username in credentials.keys() and credentials[username] == password:
+        # check if peer already active
+        if peers[username].is_active:
+            return False
+        
+        # login
+        peers[username].is_active = True
+        peers[username].timeout_time = datetime.now() + timedelta(seconds=3)
+        peers[username].welcome_socket_port = port
+        return True
+    else:
+        # failed credential check
+        return False
