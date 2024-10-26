@@ -113,3 +113,8 @@ def lpf(client_username, peers):
         _type_: _description_
     """
     return peers[client_username].published_files
+
+
+def pub(client_username, peers, file_name):
+    if file_name not in peers[client_username].published_files:
+        peers[client_username].published_files.append(file_name)

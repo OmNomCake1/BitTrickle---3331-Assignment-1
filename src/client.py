@@ -20,13 +20,18 @@ def client_shutdown(sig, frame):
 udpSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 udpSocket.settimeout(0.5)
 
-udpSocket.sendto(f"lpf yoda\n{datetime.now()}".encode(), address)
-try:
-    data, _ = udpSocket.recvfrom(1024)
-    print(data.decode())
-except socket.timeout as e:
-    pass
-
 while(True):
+    com = input(">_ ")
     signal.signal(signal.SIGINT, client_shutdown)
+    if com == "lpf":
+        udpSocket.sendto(f"lpf hans\n{datetime.now()}".encode(), address)
+    elif com == "pub":
+        udpSocket.sendto(f"pub hans\n{datetime.now()}\nfunny_chimken.png".encode(), address)
+
+    try:
+        data, _ = udpSocket.recvfrom(1024)
+        print(data.decode())
+    except socket.timeout as e:
+        pass
+    
 

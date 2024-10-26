@@ -129,6 +129,14 @@ while (True):
                 reply += " ".join(files)
                 serverSocket.sendto(reply.encode(), client_address)
                 print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
+                
+        elif command == "pub":
+            # note that running pub with same file name multiple times should NOT add it to the published list agian
+            print(f"{datetime.now()}: Received pub from {username} at port: {client_address[1]}")
+            file_name = data_line_array[2]
+            server_helper.pub(username, peers, file_name)
+            serverSocket.sendto(f"OK\n{datetime.now()}".encode(), client_address)
+            print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
             
     except socket.timeout:
         pass
