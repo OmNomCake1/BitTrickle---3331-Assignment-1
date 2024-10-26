@@ -56,10 +56,11 @@ def auth(peers, credentials, username, password, port):
         return False
 
 
-def get(peers, file_name):
+def get(client_username, peers, file_name):
     """
     get function which looks for if an ACTIVE peer has published a file, if it has, 
     returns true and tcp welcome port of that peer
+    also does NOT include the querying peer
 
     Args:
         peers (dctionary): dictionary of user objects
@@ -70,9 +71,9 @@ def get(peers, file_name):
     """
     found_file = False
     user_port = ""
-    for user in peers.values():
-        if (user.is_active and file_name in user.published_files):
+    for user in peers.keys():
+        if (peers[user].is_active and file_name in peers[user].published_files and user != client_username):
             found_file = True
-            user_port = user.welcome_socket_port
+            user_port = peers[user].welcome_socket_port
             
     return (found_file, user_port)
