@@ -63,6 +63,7 @@ def get(client_username, peers, file_name):
     also does NOT include the querying peer
 
     Args:
+        client_username (string): username of querying client
         peers (dctionary): dictionary of user objects
         file_name (string): exact file name to be downloaded
 
@@ -77,3 +78,24 @@ def get(client_username, peers, file_name):
             user_port = peers[user].welcome_socket_port
             
     return (found_file, user_port)
+
+
+def lap(client_username, peers):
+    """
+    looks for the usernames of active peers, except the querying peer
+    returns list of usernames
+
+    Args:
+        client_username (string): username of querying client
+        peers (dictionary): dictionary of user objects
+
+    Returns:
+        array[string]: an array of active peer usernames
+    """
+    active_peers = []
+    
+    for user in peers.keys():
+        if peers[user].is_active and user != client_username:
+            active_peers.append(user)
+    
+    return active_peers

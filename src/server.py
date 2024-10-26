@@ -42,6 +42,10 @@ peers["hans"] = server_helper.User(100, datetime.now() + timedelta(hours=1))
 peers["hans"].published_files.append("calming.txt")
 peers["hans"].is_active = True
 
+peers["yoda"] = server_helper.User(101, datetime.now() + timedelta(hours=1))
+peers["yoda"].published_files.append("angry.txt")
+peers["yoda"].is_active = True
+
 # how to handle heartbeat
 # if packet received is a heartbeat command, check who sent, get current time
 # set is_active = true if not already
@@ -76,20 +80,41 @@ while (True):
         if command == "auth":
             # dont care about username cuz we already have it
             _, password, welcome_port = data_line_array[2].split()
+            print(f"{datetime.now()}: Received auth from {username} at port: {client_address[1]}")
+            
             if server_helper.auth(peers, credentials, username, password, welcome_port):
                 serverSocket.sendto(f"OK\n{datetime.now()}".encode(), client_address)
+                print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
             else:
                 serverSocket.sendto(f"ERR\n{datetime.now()}\nAuth failed: incorrect credentials or user already active".encode(), client_address)
+                print(f"{datetime.now()}: Sent ERR to {username} at port: {client_address[1]}")
         
         elif command == "get":
             file_name = data_line_array[2]
             file_found, tcp_socket = server_helper.get(username, peers, file_name)
+            print(f"{datetime.now()}: Received get from {username} at port: {client_address[1]}")
+            
             if file_found:
                 serverSocket.sendto(f"OK\n{datetime.now()}\n{tcp_socket}".encode(), client_address)
+                print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
             else:
                 serverSocket.sendto(f"ERR\n{datetime.now()}\nFile not found".encode(), client_address)
+                print(f"{datetime.now()}: Sent ERR to {username} at port: {client_address[1]}")
         
         elif command == "lap":
+            active_peers = server_helper.lap(username, peers)
+            print(f"{datetime.now()}: Received lap from {username} at port: {client_address[1]}")
+            
+            if len(active_peers) == 0:
+                serverSocket.sendto(f"ERR\n{datetime.now()}\nNo active peers".encode(), client_address)
+                print(f"{datetime.now()}: Sent ERR to {username} at port: {client_address[1]}")
+            else:
+                reply = f"OK\n{datetime.now()}\n"
+                reply += " ".join(active_peers)
+                serverSocket.sendto(reply.encode(), client_address)
+                print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
+                
+        elif command == "lpf":
             pass
             
     except socket.timeout:
@@ -102,8 +127,8 @@ while (True):
             current_time = datetime.now()
             if current_time > peers[user].timeout_time:
                 peers[user].is_active = False 
-        print(user)
-        peers[user].print_data()     
-        print("")        
-    print("---------------------------------")      
+    #     print(user)
+    #     peers[user].print_data()     
+    #     print("")        
+    # print("---------------------------------")      
 
