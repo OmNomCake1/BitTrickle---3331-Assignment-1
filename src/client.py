@@ -20,7 +20,7 @@ def client_shutdown(sig, frame):
 udpSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 udpSocket.settimeout(0.5)
 
-udpSocket.sendto(f"auth hans\n{datetime.now()}\nhans falcon*solo 100".encode(), address)
+udpSocket.sendto(f"get hans\n{datetime.now()}\ncalming.txt".encode(), address)
 try:
     data, _ = udpSocket.recvfrom(1024)
     print(data.decode())

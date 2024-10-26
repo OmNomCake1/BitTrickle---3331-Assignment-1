@@ -38,6 +38,9 @@ peers = {}
 for user in credentials.keys():
     new_user = server_helper.User(0, datetime.now())
     peers[user] = new_user
+# peers["hans"] = server_helper.User(100, datetime.now() + timedelta(hours=1))
+# peers["hans"].published_files.append("calming.txt")
+# peers["hans"].is_active = True
 
 # how to handle heartbeat
 # if packet received is a heartbeat command, check who sent, get current time
@@ -77,6 +80,14 @@ while (True):
                 serverSocket.sendto(f"OK\n{datetime.now()}".encode(), client_address)
             else:
                 serverSocket.sendto(f"ERR\n{datetime.now()}\nAuth failed: incorrect credentials or user already active".encode(), client_address)
+        
+        elif command == "get":
+            file_name = data_line_array[2]
+            file_found, tcp_socket = server_helper.get(peers, file_name)
+            if file_found:
+                serverSocket.sendto(f"OK\n{datetime.now()}\n{tcp_socket}".encode(), client_address)
+            else:
+                serverSocket.sendto(f"ERR\n{datetime.now()}\nFile not found".encode(), client_address)
             
     except socket.timeout:
         pass

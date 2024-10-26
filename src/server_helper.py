@@ -38,6 +38,8 @@ def auth(peers, credentials, username, password, port):
         username (string): client sent username
         password (string): client sent password
         port (int): TCP welcome port of the client
+    Return:
+        bool: whether auth was successful or not
     """
     if username in credentials.keys() and credentials[username] == password:
         # check if peer already active
@@ -52,3 +54,25 @@ def auth(peers, credentials, username, password, port):
     else:
         # failed credential check
         return False
+
+
+def get(peers, file_name):
+    """
+    get function which looks for if an ACTIVE peer has published a file, if it has, 
+    returns true and tcp welcome port of that peer
+
+    Args:
+        peers (dctionary): dictionary of user objects
+        file_name (string): exact file name to be downloaded
+
+    Returns:
+        (bool, int): a tuple of (was file found?, welcome socket)
+    """
+    found_file = False
+    user_port = ""
+    for user in peers.values():
+        if (user.is_active and file_name in user.published_files):
+            found_file = True
+            user_port = user.welcome_socket_port
+            
+    return (found_file, user_port)
