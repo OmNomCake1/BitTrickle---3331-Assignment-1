@@ -40,10 +40,13 @@ peers = {}
 #     peers[user] = new_user
 peers["hans"] = server_helper.User(100, datetime.now() + timedelta(hours=1))
 peers["hans"].published_files.append("calming.txt")
+peers["hans"].published_files.append("cabin.png")
+peers["hans"].published_files.append("sunrise.mp4")
 peers["hans"].is_active = True
 
 peers["yoda"] = server_helper.User(101, datetime.now() + timedelta(hours=1))
 peers["yoda"].published_files.append("angry.txt")
+peers["yoda"].published_files.append("lightning.txt")
 peers["yoda"].is_active = True
 
 # how to handle heartbeat
@@ -115,7 +118,17 @@ while (True):
                 print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
                 
         elif command == "lpf":
-            pass
+            files = server_helper.lpf(username, peers)
+            print(f"{datetime.now()}: Received lpf from {username} at port: {client_address[1]}")
+            
+            if (len(files) == 0):
+                serverSocket.sendto(f"ERR\n{datetime.now()}\nNo publishd files".encode(), client_address)
+                print(f"{datetime.now()}: Sent ERR to {username} at port: {client_address[1]}")
+            else:
+                reply = f"OK\n{datetime.now()}\n"
+                reply += " ".join(files)
+                serverSocket.sendto(reply.encode(), client_address)
+                print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
             
     except socket.timeout:
         pass

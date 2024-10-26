@@ -99,3 +99,17 @@ def lap(client_username, peers):
             active_peers.append(user)
     
     return active_peers
+
+
+def lpf(client_username, peers):
+    """
+    returns array of published files' names for client_username 
+
+    Args:
+        client_username (string): username of querying client
+        peers (_type_): dictionary of user objects
+
+    Returns:
+        _type_: _description_
+    """
+    return peers[client_username].published_files
