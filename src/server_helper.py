@@ -168,3 +168,16 @@ def unp(client_username, peers, file_name):
         return False
     peers[client_username].published_files.remove(file_name)
     return True
+
+def hbt(client_username, peers):
+    """
+    sets client's is_active to True if it wasn't already
+    set new timeout_time to be now + 3 sec
+
+    Args:
+        client_username (string): username of querying client
+        peers (dicitonary): dictionary of user objects
+    """
+    peers[client_username].is_active = True
+    peers[client_username].timeout_time = datetime.now() + timedelta(seconds=3)
+    

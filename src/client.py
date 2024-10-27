@@ -34,6 +34,8 @@ while(True):
     elif com == "unp":
         name = input("file: ")
         udpSocket.sendto(f"unp hans\n{datetime.now()}\n{name}".encode(), address)
+    elif com == "hbt":
+        udpSocket.sendto(f"hbt hans\n{datetime.now()}".encode(), address)
 
     try:
         data, _ = udpSocket.recvfrom(1024)

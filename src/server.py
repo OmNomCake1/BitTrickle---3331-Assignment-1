@@ -38,16 +38,16 @@ peers = {}
 # for user in credentials.keys():
 #     new_user = server_helper.User(0, datetime.now())
 #     peers[user] = new_user
-peers["hans"] = server_helper.User(100, datetime.now() + timedelta(hours=1))
+peers["hans"] = server_helper.User(100, datetime.now() + timedelta(seconds=3))
 peers["hans"].published_files.append("calming.txt")
 peers["hans"].published_files.append("cabin.png")
 peers["hans"].published_files.append("sunrise.mp4")
 peers["hans"].is_active = True
 
-peers["yoda"] = server_helper.User(101, datetime.now() + timedelta(hours=1))
-peers["yoda"].published_files.append("angry.txt")
-peers["yoda"].published_files.append("lightning.txt")
-peers["yoda"].is_active = True
+# peers["yoda"] = server_helper.User(101, datetime.now() + timedelta(hours=1))
+# peers["yoda"].published_files.append("angry.txt")
+# peers["yoda"].published_files.append("lightning.txt")
+# peers["yoda"].is_active = True
 
 # how to handle heartbeat
 # if packet received is a heartbeat command, check who sent, get current time
@@ -156,6 +156,10 @@ while (True):
             else:
                 serverSocket.sendto(f"ERR\n{datetime.now()}\nNo such file".encode(), client_address)
                 print(f"{datetime.now()}: Sent ERR to {username} at port: {client_address[1]}")
+        
+        elif command == "hbt":
+            # handle incoming heartbeat from a peer
+            server_helper.hbt(username, peers)
             
     except socket.timeout:
         pass
@@ -167,8 +171,9 @@ while (True):
             current_time = datetime.now()
             if current_time > peers[user].timeout_time:
                 peers[user].is_active = False 
-    #     print(user)
-    #     peers[user].print_data()     
-    #     print("")        
-    # print("---------------------------------")      
+        print(user)
+        peers[user].print_data()     
+        print("")        
+        print(datetime.now())
+    print("---------------------------------")      
 
