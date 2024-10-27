@@ -42,11 +42,11 @@ peers["hans"] = server_helper.User(100, datetime.now() + timedelta(seconds=3))
 peers["hans"].published_files.append("calming.txt")
 peers["hans"].published_files.append("cabin.png")
 peers["hans"].published_files.append("sunrise.mp4")
-peers["hans"].is_active = True
+# peers["hans"].is_active = True
 
-# peers["yoda"] = server_helper.User(101, datetime.now() + timedelta(hours=1))
-# peers["yoda"].published_files.append("angry.txt")
-# peers["yoda"].published_files.append("lightning.txt")
+peers["yoda"] = server_helper.User(101, datetime.now() + timedelta(seconds=3))
+peers["yoda"].published_files.append("angry.txt")
+peers["yoda"].published_files.append("lightning.txt")
 # peers["yoda"].is_active = True
 
 # how to handle heartbeat
@@ -164,7 +164,7 @@ while (True):
     except socket.timeout:
         pass
     
-    # Heartbeat handling
+    # timeout checking
     # check active user's timeout_time
     for user in peers:
         if (peers[user].is_active):

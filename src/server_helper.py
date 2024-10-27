@@ -2,8 +2,6 @@
 # Includes a data class, one instance for each user 
 from datetime import datetime, timedelta
 
-# Data class for each user. Has the following fields:
-# is_active, [published_files], welcome_socket_port, timeout_time
 class User:
     """ 
     Data class for each user. Has the following fields:
