@@ -80,10 +80,11 @@ while (True):
         data_line_array = data.decode().split('\n')
         command, username = data_line_array[0].split()
         
+        print(f"{datetime.now()}: Received {command} from {username} at port: {client_address[1]}")
+        
         if command == "auth":
             # dont care about username cuz we already have it
             _, password, welcome_port = data_line_array[2].split()
-            print(f"{datetime.now()}: Received auth from {username} at port: {client_address[1]}")
             
             if server_helper.auth(peers, credentials, username, password, welcome_port):
                 serverSocket.sendto(f"OK\n{datetime.now()}".encode(), client_address)
@@ -95,7 +96,6 @@ while (True):
         elif command == "get":
             file_name = data_line_array[2]
             file_found, tcp_socket = server_helper.get(username, peers, file_name)
-            print(f"{datetime.now()}: Received get from {username} at port: {client_address[1]}")
             
             if file_found:
                 serverSocket.sendto(f"OK\n{datetime.now()}\n{tcp_socket}".encode(), client_address)
@@ -106,7 +106,6 @@ while (True):
         
         elif command == "lap":
             active_peers = server_helper.lap(username, peers)
-            print(f"{datetime.now()}: Received lap from {username} at port: {client_address[1]}")
             
             if len(active_peers) == 0:
                 serverSocket.sendto(f"ERR\n{datetime.now()}\nNo active peers".encode(), client_address)
@@ -119,7 +118,6 @@ while (True):
                 
         elif command == "lpf":
             files = server_helper.lpf(username, peers)
-            print(f"{datetime.now()}: Received lpf from {username} at port: {client_address[1]}")
             
             if (len(files) == 0):
                 serverSocket.sendto(f"ERR\n{datetime.now()}\nNo publishd files".encode(), client_address)
@@ -132,14 +130,12 @@ while (True):
                 
         elif command == "pub":
             # note that running pub with same file name multiple times should NOT add it to the published list agian
-            print(f"{datetime.now()}: Received pub from {username} at port: {client_address[1]}")
             file_name = data_line_array[2]
             server_helper.pub(username, peers, file_name)
             serverSocket.sendto(f"OK\n{datetime.now()}".encode(), client_address)
             print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
         
         elif command == "sch":
-            print(f"{datetime.now()}: Received sch from {username} at port: {client_address[1]}")
             substr = data_line_array[2]
             files = server_helper.sch(username, peers, substr)
             
@@ -151,7 +147,9 @@ while (True):
                 reply += " ".join(files)
                 serverSocket.sendto(reply.encode(), client_address)
                 print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
-            
+                
+        elif command == "unp":
+            pass            
             
     except socket.timeout:
         pass
