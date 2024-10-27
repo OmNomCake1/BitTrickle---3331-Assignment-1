@@ -149,7 +149,13 @@ while (True):
                 print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
                 
         elif command == "unp":
-            pass            
+            file_name = data_line_array[2]
+            if server_helper.unp(username, peers, file_name):
+                serverSocket.sendto(f"OK\n{datetime.now()}".encode(), client_address)
+                print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
+            else:
+                serverSocket.sendto(f"ERR\n{datetime.now()}\nNo such file".encode(), client_address)
+                print(f"{datetime.now()}: Sent ERR to {username} at port: {client_address[1]}")
             
     except socket.timeout:
         pass

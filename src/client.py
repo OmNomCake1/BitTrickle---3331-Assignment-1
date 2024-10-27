@@ -24,13 +24,16 @@ while(True):
     com = input(">_ ")
     signal.signal(signal.SIGINT, client_shutdown)
     if com == "lpf":
-        udpSocket.sendto(f"lpf yoda\n{datetime.now()}".encode(), address)
+        udpSocket.sendto(f"lpf hans\n{datetime.now()}".encode(), address)
     elif com == "pub":
         name = input("file: ")
-        udpSocket.sendto(f"pub yoda\n{datetime.now()}\n{name}".encode(), address)
+        udpSocket.sendto(f"pub hans\n{datetime.now()}\n{name}".encode(), address)
     elif com == "sch":
         sub = input("substr: ")
-        udpSocket.sendto(f"sch yoda\n{datetime.now()}\n{sub}".encode(), address)
+        udpSocket.sendto(f"sch hans\n{datetime.now()}\n{sub}".encode(), address)
+    elif com == "unp":
+        name = input("file: ")
+        udpSocket.sendto(f"unp hans\n{datetime.now()}\n{name}".encode(), address)
 
     try:
         data, _ = udpSocket.recvfrom(1024)

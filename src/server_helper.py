@@ -150,3 +150,21 @@ def sch(client_username, peers, sch_string):
                 file_list.append(file)
     
     return file_list
+
+
+def unp(client_username, peers, file_name):
+    """
+    removes given filename from client_username's published files list
+
+    Args:
+        client_username (string): querying client's username
+        peers (dictionary): dictionary of user objects
+        file_name (string): name of file to be unpublished
+
+    Returns:
+        _type_: _description_
+    """
+    if file_name not in peers[client_username].published_files:
+        return False
+    peers[client_username].published_files.remove(file_name)
+    return True
