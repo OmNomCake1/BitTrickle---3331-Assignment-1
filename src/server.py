@@ -137,6 +137,21 @@ while (True):
             server_helper.pub(username, peers, file_name)
             serverSocket.sendto(f"OK\n{datetime.now()}".encode(), client_address)
             print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
+        
+        elif command == "sch":
+            print(f"{datetime.now()}: Received sch from {username} at port: {client_address[1]}")
+            substr = data_line_array[2]
+            files = server_helper.sch(username, peers, substr)
+            
+            if (len(files) == 0):
+                serverSocket.sendto(f"ERR\n{datetime.now()}\nCould not find file".encode(), client_address)
+                print(f"{datetime.now()}: Sent ERR to {username} at port: {client_address[1]}")
+            else:
+                reply = f"OK\n{datetime.now()}\n"
+                reply += " ".join(files)
+                serverSocket.sendto(reply.encode(), client_address)
+                print(f"{datetime.now()}: Sent OK to {username} at port: {client_address[1]}")
+            
             
     except socket.timeout:
         pass

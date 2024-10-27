@@ -107,14 +107,46 @@ def lpf(client_username, peers):
 
     Args:
         client_username (string): username of querying client
-        peers (_type_): dictionary of user objects
+        peers (dictionary): dictionary of user objects
 
     Returns:
-        _type_: _description_
+        array[string]: string array of published file names
     """
     return peers[client_username].published_files
 
 
 def pub(client_username, peers, file_name):
+    """
+    appends given filename to peer object's published files list if it isnt in it already
+
+    Args:
+        client_username (string): username of querying client
+        peers (dictionary): dictionary of user objects
+        file_name (string): name of file wished to be published
+    """
     if file_name not in peers[client_username].published_files:
         peers[client_username].published_files.append(file_name)
+        
+        
+def sch(client_username, peers, sch_string):
+    """
+    returns a list of published file names which contain the given substring, 
+    only if peer is active and not including querying peer
+
+    Args:
+        client_username (string): username of querying client
+        peers (dictionary): dictionary of user objects
+        sch_string (string): substring to be searched for
+
+    Returns:
+        array[string]: array of file names' strings which contain the substrubg
+    """
+    file_list = []
+    for user in peers.keys():
+        if user == client_username or not peers[user].is_active:
+            continue
+        for file in peers[user].published_files:
+            if sch_string in file and file not in file_list:
+                file_list.append(file)
+    
+    return file_list
