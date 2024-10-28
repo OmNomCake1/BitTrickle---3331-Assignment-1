@@ -13,7 +13,11 @@ class PeerConnectionThread(threading.Thread):
         self.connectionSocket = conenctionSocket
 
     def run(self):
-        self.connectionSocket.send("Sending you files to download...\n".encode())
-        self.connectionSocket.send("downloading....\n".encode())
-        self.connectionSocket.send("download complete!".encode())
+        # receive file name which other client wants
+        file_name = self.connectionSocket.recv(1024).decode()
+            
+        # open file to send
+        send_file = open(file_name, "rb")
+        entire_file = send_file.read()
+        self.connectionSocket.sendall(entire_file)
         self.connectionSocket.close()

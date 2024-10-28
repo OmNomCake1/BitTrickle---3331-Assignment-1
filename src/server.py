@@ -35,18 +35,18 @@ with open(credentials_path, 'r') as file:
 # User class has attributes: is_active, [published_files], welcome_socket_port, timeout_time
 # "dummy": server_helper.User(12001, datetime.now() + timedelta(seconds=3))
 peers = {}
-# for user in credentials.keys():
-#     new_user = server_helper.User(0, datetime.now())
-#     peers[user] = new_user
-peers["hans"] = server_helper.User(100, datetime.now() + timedelta(seconds=3))
-peers["hans"].published_files.append("calming.txt")
-peers["hans"].published_files.append("cabin.png")
-peers["hans"].published_files.append("sunrise.mp4")
+for user in credentials.keys():
+    new_user = server_helper.User(0, datetime.now())
+    peers[user] = new_user
+# peers["hans"] = server_helper.User(100, datetime.now() + timedelta(seconds=3))
+# peers["hans"].published_files.append("calming.txt")
+# peers["hans"].published_files.append("cabin.png")
+# peers["hans"].published_files.append("sunrise.mp4")
 # peers["hans"].is_active = True
 
-peers["yoda"] = server_helper.User(101, datetime.now() + timedelta(seconds=3))
-peers["yoda"].published_files.append("angry.txt")
-peers["yoda"].published_files.append("lightning.txt")
+# peers["yoda"] = server_helper.User(101, datetime.now() + timedelta(seconds=3))
+# peers["yoda"].published_files.append("angry.txt")
+# peers["yoda"].published_files.append("lightning.txt")
 # peers["yoda"].is_active = True
 
 # how to handle heartbeat
@@ -171,9 +171,9 @@ while (True):
             current_time = datetime.now()
             if current_time > peers[user].timeout_time:
                 peers[user].is_active = False 
-        print(user)
-        peers[user].print_data()     
-        print("")        
-        print(datetime.now())
-    print("---------------------------------")      
+    #     print(user)
+    #     peers[user].print_data()     
+    #     print("")        
+    #     print(datetime.now())
+    # print("---------------------------------")      
 

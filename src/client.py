@@ -4,6 +4,7 @@ from datetime import datetime
 import signal
 import threading
 import time
+import os
 import client_helper
 
 # get host and ip
@@ -60,7 +61,6 @@ while (True):
     elif "OK" in data.decode():
         print("\nLogin successful!\n\nWelcome to BitTrickle!!")
         print("Commands - get, lap, lpf, pub, sch, unp, xit")
-        print(tcp_port)
         # start hbt thread
         hbt_thread = threading.Thread(target=hbt_function, daemon=True, name="Hbt thread", args=(username,))
         hbt_thread.start()
@@ -97,6 +97,10 @@ while(True):
         
     elif com.split()[0] == "pub" and len(com.split()) == 2: 
         file = com.split()[1]
+        if not os.path.exists(file):
+            print("File not found in your directory")
+            continue
+        
         udpSocket.sendto(f"pub {username}\n{datetime.now()}\n{file}".encode(), udp_address)
         
     elif com.split()[0] == "sch" and len(com.split()) == 2:
@@ -157,27 +161,35 @@ while(True):
                 print(f"File {com.split()[1]} successfully unpublished")
                 
         elif com.split()[0] == "get" and len(com.split()) == 2:
-            print(data)
-            # clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # clientSocket.connect((host, p))
-            # full = ""
-            # # download all data from other peer
-            # try:
-            #     while(True):
-            #         data = clientSocket.recv(1024)
-            #         if not data:
-            #             break
+            if "ERR" in data:
+                print("No such file")
+            else:
+                target_peer_port = int(data.split('\n')[2])
+                clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                clientSocket.connect((host, target_peer_port))
+                
+                # step 1. send name of file to peer that u wish to download
+                clientSocket.sendall(file_wanted.encode())
+                # download all data from other peer in 1024 segments and write to file
+                try:
+                    download_file = open(file_wanted, "wb")
+                    while(True):
+                        file_data = clientSocket.recv(1024)
+                        
+                        # sender has finished sending if empty string
+                        if not file_data:
+                            break
+                        
+                        download_file.write(file_data)
+
+                except Exception as e:
+                    print(f"Error: {e}") 
                     
-            #         message = data.decode()
-            #         full += message
-                    
-            #         if "complete" in message:
-            #             break
-            # except Exception as e:
-            #     print(f"Error: {e}") 
-            # print(full)
-            # # close connection
-            # clientSocket.close()
+                finally:
+                    # close connection and file
+                    download_file.close()
+                    clientSocket.close()
+                print(f"Successfully downloaded {file_wanted}!")
         
     except socket.timeout as e:
         pass
