@@ -76,21 +76,34 @@ while (True):
 
 # main interactive loop
 while(True):
-    com = input(">_ ")
     signal.signal(signal.SIGINT, client_shutdown)
+    
+    com = input(">_ ")
     if com == "lpf":
         udpSocket.sendto(f"lpf {username}\n{datetime.now()}".encode(), udp_address)
-    elif com == "pub":
-        name = input("file: ")
-        udpSocket.sendto(f"pub {username}\n{datetime.now()}\n{name}".encode(), udp_address)
-    elif com == "sch":
-        sub = input("substr: ")
+        
+    elif com == "lap":
+        udpSocket.sendto(f"lap {username}\n{datetime.now()}".encode(), udp_address)
+        
+    elif com.split()[0] == "pub" and len(com.split()) == 2: 
+        file = com.split()[1]
+        udpSocket.sendto(f"pub {username}\n{datetime.now()}\n{file}".encode(), udp_address)
+        
+    elif com.split()[0] == "sch" and len(com.split()) == 2:
+        sub = com.split()[1]
         udpSocket.sendto(f"sch {username}\n{datetime.now()}\n{sub}".encode(), udp_address)
-    elif com == "unp":
-        name = input("file: ")
-        udpSocket.sendto(f"unp {username}\n{datetime.now()}\n{name}".encode(), udp_address)
-    elif com == "hbt":
-        udpSocket.sendto(f"hbt {username}\n{datetime.now()}".encode(), udp_address)
+        
+    elif com.split()[0] == "unp" and len(com.split()) == 2:
+        file = com.split()[1]
+        udpSocket.sendto(f"unp {username}\n{datetime.now()}\n{file}".encode(), udp_address)
+        
+    elif com == "xit":
+        print("Shutting down...")
+        print("Goodbye!")
+        udpSocket.close()
+        welcomeSocket.close()
+        exit(0)
+        
     elif com == "get":
         # connect with another peer and receive file they are sending
         p = int(input("port: "))
@@ -114,10 +127,53 @@ while(True):
         print(full)
         # close connection
         clientSocket.close()
-                
+        
+    elif com == "h":
+        print("Commands - get, lap, lpf, pub, sch, unp, xit")
+    else:
+        print("Invalid command... press h for help")
+    
+    
+    # receive response
     try:
         data, _ = udpSocket.recvfrom(1024)
-        print(data.decode())
+        data = data.decode()
+        
+        if com == "lpf":
+            if "ERR" in data:
+                print("No files found")
+            else:
+                files = data.split('\n')[2]
+                print(f"{len(files.split())} published files")
+                print(files)
+                
+        elif com == "lap":
+            if "ERR" in data:
+                print("No other active peers")
+            else:
+                active_peers = data.split('\n')[2]
+                print(f"{len(active_peers.split())} active peers:")
+                print(active_peers)
+            
+        elif com.split()[0] == "pub" and len(com.split()) == 2: 
+            # how I coded server, it can never return error (because assuming ideal scenario)
+            print(f"File {com.split()[1]} successfully published")
+        elif com.split()[0] == "sch" and len(com.split()) == 2:
+            if "ERR" in data:
+                print("No such file")
+            else:
+                files = data.split('\n')[2]
+                print(f"{len(files.split())} files containing substring '{com.split()[1]}'")
+                print(files)
+                
+        elif com.split()[0] == "unp" and len(com.split()) == 2:
+            if "ERR" in data:
+                print("No such file")
+            else:
+                print(f"File {com.split()[1]} successfully unpublished")
+        elif com == "get":
+            pass
+        
     except socket.timeout as e:
         pass
 
