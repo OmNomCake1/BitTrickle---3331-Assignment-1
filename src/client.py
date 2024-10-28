@@ -9,7 +9,7 @@ import client_helper
 
 # get host and ip
 if len(sys.argv) != 2:
-    print("Expected usage: python3 server.py <port>")
+    print("Expected usage: python3 client.py <port>")
     exit(0)
 host = 'localhost'
 udp_port = int(sys.argv[1])
