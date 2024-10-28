@@ -79,11 +79,21 @@ while(True):
     signal.signal(signal.SIGINT, client_shutdown)
     
     com = input(">_ ")
-    if com == "lpf":
+    if len(com) == 0:
+        print("Invalid command... press h for help")
+        
+    elif com == "lpf":
         udpSocket.sendto(f"lpf {username}\n{datetime.now()}".encode(), udp_address)
         
     elif com == "lap":
         udpSocket.sendto(f"lap {username}\n{datetime.now()}".encode(), udp_address)
+        
+    elif com == "xit":
+        print("Shutting down...")
+        print("Goodbye!")
+        udpSocket.close()
+        welcomeSocket.close()
+        exit(0)
         
     elif com.split()[0] == "pub" and len(com.split()) == 2: 
         file = com.split()[1]
@@ -97,36 +107,9 @@ while(True):
         file = com.split()[1]
         udpSocket.sendto(f"unp {username}\n{datetime.now()}\n{file}".encode(), udp_address)
         
-    elif com == "xit":
-        print("Shutting down...")
-        print("Goodbye!")
-        udpSocket.close()
-        welcomeSocket.close()
-        exit(0)
-        
-    elif com == "get":
-        # connect with another peer and receive file they are sending
-        p = int(input("port: "))
-        clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        clientSocket.connect((host, p))
-        full = ""
-        # download all data from other peer
-        try:
-            while(True):
-                data = clientSocket.recv(1024)
-                if not data:
-                    break
-                
-                message = data.decode()
-                full += message
-                
-                if "complete" in message:
-                    break
-        except Exception as e:
-            print(f"Error: {e}") 
-        print(full)
-        # close connection
-        clientSocket.close()
+    elif com.split()[0] == "get" and len(com.split()) == 2:
+        file_wanted = com.split()[1]
+        udpSocket.sendto(f"get {username}\n{datetime.now()}\n{file_wanted}".encode(), udp_address)
         
     elif com == "h":
         print("Commands - get, lap, lpf, pub, sch, unp, xit")
@@ -158,6 +141,7 @@ while(True):
         elif com.split()[0] == "pub" and len(com.split()) == 2: 
             # how I coded server, it can never return error (because assuming ideal scenario)
             print(f"File {com.split()[1]} successfully published")
+            
         elif com.split()[0] == "sch" and len(com.split()) == 2:
             if "ERR" in data:
                 print("No such file")
@@ -171,8 +155,29 @@ while(True):
                 print("No such file")
             else:
                 print(f"File {com.split()[1]} successfully unpublished")
-        elif com == "get":
-            pass
+                
+        elif com.split()[0] == "get" and len(com.split()) == 2:
+            print(data)
+            # clientSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # clientSocket.connect((host, p))
+            # full = ""
+            # # download all data from other peer
+            # try:
+            #     while(True):
+            #         data = clientSocket.recv(1024)
+            #         if not data:
+            #             break
+                    
+            #         message = data.decode()
+            #         full += message
+                    
+            #         if "complete" in message:
+            #             break
+            # except Exception as e:
+            #     print(f"Error: {e}") 
+            # print(full)
+            # # close connection
+            # clientSocket.close()
         
     except socket.timeout as e:
         pass
